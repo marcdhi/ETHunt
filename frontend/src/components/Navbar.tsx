@@ -1,9 +1,21 @@
-
 import { FaEthereum } from "react-icons/fa";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import WalletWrapper from "@/helpers/WalletWrapper";
+import { WalletSelect } from "@talismn/connect-components";
+import {
+  AlephZeroWallet,
+  EnkryptWallet,
+  FearlessWallet,
+  MantaWallet,
+  NovaWallet,
+  PolkadotjsWallet,
+  PolkaGate,
+  SubWallet,
+  TalismanWallet,
+} from "@talismn/connect-wallets";
 
 export function Navbar() {
+  const DAPP_NAME = "KHOJO";
   return (
     <nav className="fixed top-0 w-full bg-white shadow-sm z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -27,15 +39,37 @@ export function Navbar() {
           </div>
 
           {/* Wallet Connect */}
-          <div className="flex items-center text-black">
-          <WalletWrapper
+          <div className="flex items-center text-black gap-4">
+            <WalletWrapper
               className="bg-green text-white rounded-2xl hover:bg-green/80"
               text="Connect Wallet"
               withWalletAggregator={true}
+            />
+            <WalletSelect
+              dappName="Talisman"
+              // onlyShowInstalled
+              // makeInstallable
+              showAccountsList
+              walletList={[
+                new TalismanWallet(),
+                new NovaWallet(),
+                new SubWallet(),
+                new MantaWallet(),
+                new PolkaGate(),
+                new FearlessWallet(),
+                new EnkryptWallet(),
+                new PolkadotjsWallet(),
+                new AlephZeroWallet(),
+              ]}
+              triggerComponent={
+                <button className="bg-green font-bold gap-4 rounded-2xl px-4 py-2 hover:bg-green/80">
+                  Parachain Wallets
+                </button>
+              }
             />
           </div>
         </div>
       </div>
     </nav>
   );
-} 
+}
