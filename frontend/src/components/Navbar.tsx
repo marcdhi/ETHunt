@@ -28,7 +28,7 @@ export function Navbar() {
 
           {/* Wallet Connect */}
           <div className="flex items-center text-black">
-          <WalletWrapper
+            <WalletWrapper
               className="bg-green text-white rounded-2xl hover:bg-green/80"
               text="Connect Wallet"
               withWalletAggregator={true}

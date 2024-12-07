@@ -171,12 +171,14 @@ export class Lit {
         return { decryptedString }
     }
 
-    async decryptLitAction(ciphertext, dataToEncryptHash, mode) {
+    async decryptLitAction(ciphertext, dataToEncryptHash, userAddress) {
+        const chain = "baseSepolia";
+
         const code = `(async () => {
             console.log("hello");
             const privateKey = await Lit.Actions.decryptAndCombine({
               accessControlConditions,
-              chain: "ethereum",
+              chain: "baseSepolia",
               ciphertext,
               dataToEncryptHash,
               authSig,
@@ -186,6 +188,22 @@ export class Lit {
             Lit.Actions.setResponse({ response: privateKey });
           })();`
 
+        const accessControlConditions = [
+            {
+                contractAddress: '0x50Fe11213FA2B800C5592659690A38F388060cE4',
+                standardContractType: 'ERC721',
+                chain,
+                method: 'ownerOf',
+                parameters: [
+                    '4'
+                ],
+                returnValueTest: {
+                    comparator: '=',
+                    value: userAddress
+                }
+            }
+        ]
+
         const sessionSigs = await this.getSessionSigsServer();
         // // Decrypt the private key inside a lit action
         const res = await this.litNodeClient.executeJs({
@@ -193,7 +211,7 @@ export class Lit {
             code: code,
             // code: genActionSource2(),
             jsParams: {
-                accessControlConditions: this.accessControlConditions,
+                accessControlConditions: accessControlConditions,
                 ciphertext,
                 dataToEncryptHash,
                 sessionSigs,
@@ -206,23 +224,24 @@ export class Lit {
     }
 }
 
-export const encryptRunServerMode = async (message) => {
-    const chain = "ethereum";
+export const encryptRunServerMode = async (message, userAddress) => {
+    const chain = "baseSepolia";
 
     const accessControlConditions = [
         {
-            conditionType: "evmBasic",
-            contractAddress: "",
-            standardContractType: "",
-            chain: 'polygon',
-            method: "eth_getBalance",
-            parameters: [":userAddress", "latest"],
+            contractAddress: '0x50Fe11213FA2B800C5592659690A38F388060cE4',
+            standardContractType: 'ERC721',
+            chain,
+            method: 'ownerOf',
+            parameters: [
+                '4'
+            ],
             returnValueTest: {
-                comparator: ">=",
-                value: "0",
-            },
-        },
-    ];
+                comparator: '=',
+                value: userAddress
+            }
+        }
+    ]
 
     let myLit = new Lit(client, chain, accessControlConditions);
     await myLit.connect();
@@ -234,28 +253,29 @@ export const encryptRunServerMode = async (message) => {
     return { ciphertext, dataToEncryptHash };
 };
 
-export const decryptRunServerMode = async (dataToEncryptHash, ciphertext) => {
-    const chain = "ethereum";
+export const decryptRunServerMode = async (dataToEncryptHash, ciphertext, userAddress) => {
+    const chain = "baseSepolia";
 
     const accessControlConditions = [
         {
-            conditionType: "evmBasic",
-            contractAddress: "",
-            standardContractType: "",
-            chain: 'polygon',
-            method: "eth_getBalance",
-            parameters: [":userAddress", "latest"],
+            contractAddress: '0x50Fe11213FA2B800C5592659690A38F388060cE4',
+            standardContractType: 'ERC721',
+            chain,
+            method: 'ownerOf',
+            parameters: [
+                '4'
+            ],
             returnValueTest: {
-                comparator: ">=",
-                value: "0",
-            },
-        },
-    ];
+                comparator: '=',
+                value: userAddress
+            }
+        }
+    ]
 
     let myLit = new Lit(client, chain, accessControlConditions);
     // await myLit.connect();
 
-    const data = await myLit.decryptLitAction(ciphertext, dataToEncryptHash, "server");
+    const data = await myLit.decryptLitAction(ciphertext, dataToEncryptHash, userAddress);
     console.log("decrypted data: ", data);
 
     return (data)
@@ -265,10 +285,10 @@ export async function run() {
     const message = "Hello, Lit Protocol!";
 
     // Encrypt the message
-    const { ciphertext, dataToEncryptHash } = await encryptRunServerMode(message);
+    const { ciphertext, dataToEncryptHash } = await encryptRunServerMode(message, "0x7F23F30796F54a44a7A95d8f8c8Be1dB017C3397");
 
     // Decrypt the message
-    const decryptedData = await decryptRunServerMode(dataToEncryptHash, ciphertext);
+    const decryptedData = await decryptRunServerMode(dataToEncryptHash, ciphertext, "0x7F23F30796F54a44a7A95d8f8c8Be1dB017C3397");
     console.log("Decrypted Data:", decryptedData);
     return decryptedData;
 }
