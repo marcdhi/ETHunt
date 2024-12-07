@@ -184,6 +184,34 @@ export class Lit {
               authSig,
               sessionSigs
             });
+
+            function isWithinRange({latitude_1, longitude_1, latitude_2, longitude_2}) {
+                // Earth's radius in meters
+                const EARTH_RADIUS = 6371000; // 6,371 kilometers
+                const maxDistance = 10;
+                
+                // Convert latitude and longitude from degrees to radians
+                const toRadians = (degrees) => degrees * (Math.PI / 180);
+                
+                const φ1 = toRadians(latitude_1);
+                const φ2 = toRadians(latitude_2);
+                const Δφ = toRadians(latitude_2 - latitude_1);
+                const Δλ = toRadians(longitude_2 - longitude_1);
+                
+                // Haversine formula
+                const a = 
+                    Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                    Math.cos(φ1) * Math.cos(φ2) *
+                    Math.sin(Δλ/2) * Math.sin(Δλ/2);
+                
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                
+                // Distance in meters
+                const distance = EARTH_RADIUS * c;
+                
+                // Return true if distance is less than maxDistance (default 10 meters)
+                return distance <= maxDistance;
+            }
             console.log("privateKey: ", privateKey);
             Lit.Actions.setResponse({ response: privateKey });
           })();`
@@ -215,7 +243,8 @@ export class Lit {
                 ciphertext,
                 dataToEncryptHash,
                 sessionSigs,
-                authSig
+                authSig,
+
             }
         });
         console.log("result from action execution:", res);
